@@ -1,0 +1,64 @@
+<?php
+
+/**
+* Implements hook_help.
+*
+* Displays help and module information.
+*
+* @param path
+*   Which path of the site we're using to display help
+* @param arg
+*   Array that holds the current path as returned from arg() function
+*/
+function npv_rangliste_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#npv_rangliste":
+      return '<p>' . t("Module for importing the ranking of the NPV.") . '</p>';
+      break;
+  }
+}
+
+/**
+ * Implements hook_views_api
+ * 
+ * Gibt vor, für welche Version von Views die implementierten Funktionen sind und
+ * den Pfad für die Datei *.views.inc
+ * 
+ * @return array 
+ */
+function npv_rangliste_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'npv_rangliste'),
+  );
+}
+
+/**
+ * Implements hook_permission
+ * 
+ * @return array
+ */
+function npv_rangliste_permission() {
+  return array(
+      'access ranglistenimport' => array(
+          'title' => 'Ranglistenimport',
+          'description' => 'Importieren von CSV-Dateien für die Ranglisten.',
+      ),
+  );
+}
+
+/**
+ * Implements hook_menu.
+ */
+function npv_rangliste_menu() {
+  $items['admin/content/rangliste'] = array(
+      'type' => MENU_LOCAL_TASK,
+      'title' => 'Ranglisten Import',
+      'page callback' => 'npv_rangliste_import',
+      'page arguments' => array(t('A menu entry with no menu link (MENU_CALLBACK) is at <a href="!link">!link</a>', array('!link' => url('menu_example/path_only/callback')))),
+      'access arguments' => array('access ranglistenimport'),
+      'file' => 'npv_rangliste.inc',
+      'weight' => 20,
+  );
+  return $items;
+}

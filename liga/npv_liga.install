@@ -1,0 +1,638 @@
+<?php
+/**
+ * @file
+ * 
+ * Install Datei für das Modul NPV-Liga
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function npv_liga_install() {
+  // Create tables.
+  //drupal_install_schema('npv');
+  $t = get_t();
+  //db_query("INSERT INTO {menu_custom} (menu_name, title, description) VALUES ('%s', '%s', '%s')", array('NPV-Verwaltung', $t('NPV-Verwaltung'), $t('Die Verwaltung für den NPV.')));
+  db_insert('menu_custom')
+  ->fields(array('menu_name', 'title', 'description'))
+  ->values(array('NPV-Ligaverwaltung', $t('NPV-Ligaverwaltung'), $t('Die Liga-Verwaltung für den NPV.')))
+  ->execute();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function npv_liga_uninstall() {
+  // Remove tables.
+  //drupal_uninstall_schema('npv');
+  db_delete('menu_custom')
+  ->condition('menu_name', 'NPV-Ligaverwaltung')
+  ->execute();
+  menu_rebuild();
+}
+
+function npv_liga_schema() {
+  $schema['npv_liga_liga'] = array(
+      'description' => 'TODO: please describe this table!; InnoDB free: 23552 kB',
+      'fields' => array(
+        'idliga' => array(
+          'description' => 'TODO: please describe this field!',
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'name' => array(
+          'description' => 'TODO: please describe this field!',
+          'type' => 'varchar',
+          'length' => '45',
+          'not null' => TRUE,
+        ),
+        'jahr' => array(
+          'description' => 'TODO: please describe this field!',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'date_cre' => array(
+          'description' => 'Datum der Erstellung.',
+          'type' => 'int',
+          'not null' => TRUE,
+        ),
+        'date_ame' => array(
+          'description' => 'Datum der letzten Änderung.',
+          'type' => 'int',
+          'not null' => FALSE,
+        ),
+        'aufsteiger' => array(
+          'description' => 'Auufsteiger bis Platz',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ),
+        'absteiger' => array(
+          'description' => 'Absteiger ab Platz',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ),
+      'freigabe' => array(
+          'description' => 'Tabelle freigegeben',
+          'type' => 'int',
+          'size' => 'tiny',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 0,
+      ),
+      ),
+      'primary key' => array('idliga'),
+  );
+  
+  $schema['npv_liga_verein'] = array(
+      'description' => 'TODO: please describe this table!',
+      'fields' => array(
+          'idverein' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'name' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '45',
+              'not null' => FALSE,
+          ),
+          'lizenz' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '7',
+              'not null' => TRUE,
+          ),
+          'date_cre' => array(
+              'description' => 'Datum der Erstellung.',
+              'type' => 'int',
+              'not null' => TRUE,
+          ),
+          'date_ame' => array(
+              'description' => 'Datum der letzten Änderung.',
+              'type' => 'int',
+              'not null' => FALSE,
+          ),
+          'del_yn' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'char',
+              'length' => '1',
+              'not null' => TRUE,
+              'default' => '0',
+          ),
+      ),
+      'primary key' => array('idverein'),
+      'unique keys' => array(
+          'ix_lizenz_unique' => array('lizenz')
+      ),
+  );
+  $schema['npv_liga_ligateam'] = array(
+      'description' => 'TODO: please describe this table!',
+      'fields' => array(
+          'idligateam' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'name' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '45',
+              'not null' => FALSE,
+          ),
+          'idverein' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'idliga' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'date_cre' => array(
+              'description' => 'Datum der Erstellung.',
+              'type' => 'int',
+              'not null' => TRUE,
+          ),
+          'date_ame' => array(
+              'description' => 'Datum der letzten Änderung.',
+              'type' => 'int',
+              'not null' => FALSE,
+          ),
+      ),
+      'primary key' => array('idligateam'),
+      'indexes' => array(
+          'ix_team_liga1' => array('idliga'),
+          'ix_team_verein' => array('idverein'),
+      ),
+  );
+  $schema['npv_liga_begegnung'] = array(
+      'description' => 'TODO: please describe this table!',
+      'fields' => array(
+          'idbegegnung' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'ort' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '255',
+              'not null' => FALSE,
+          ),
+          'date_game' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'uhrzeit' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '5',
+              'not null' => FALSE,
+          ),
+          'bahn' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '50',
+              'not null' => FALSE,
+          ),
+          'siege_team1' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'siege_team2' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'kugeln_team1' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'kugeln_team2' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'matchpunkt_team1' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'matchpunkt_team2' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'idteam2' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'idteam1' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'idliga' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'date_cre' => array(
+              'description' => 'Datum der Erstellung.',
+              'type' => 'int',
+              'not null' => TRUE,
+          ),
+          'date_ame' => array(
+              'description' => 'Datum der letzten Änderung.',
+              'type' => 'int',
+              'not null' => FALSE,
+          ),
+      ),
+      'primary key' => array('idbegegnung'),
+      'indexes' => array(
+          'ix_begegnung_liga1' => array('idliga'),
+          'ix_begegnung_ligateam1' => array('idteam1'),
+          'ix_begegnung_ligateam2' => array('idteam2'),
+      ),
+  );
+  $schema['npv_liga_lizenz'] = array(
+      'description' => 'TODO: please describe this table!',
+      'fields' => array(
+          'idlizenz' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'lizenz' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '11',
+              'not null' => TRUE,
+          ),
+          'jahr' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '4',
+              'not null' => TRUE,
+          ),
+          'idspieler' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'date_cre' => array(
+              'description' => 'Datum der Erstellung.',
+              'type' => 'int',
+              'not null' => TRUE,
+          ),
+          'date_ame' => array(
+              'description' => 'Datum der letzten Änderung.',
+              'type' => 'int',
+              'not null' => FALSE,
+          ),
+          'del_yn' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'char',
+              'length' => '1',
+              'not null' => TRUE,
+              'default' => '0',
+          ),
+      ),
+      'primary key' => array('idlizenz'),
+  );
+  $schema['npv_liga_spieler'] = array(
+      'description' => 'TODO: please describe this table!',
+      'fields' => array(
+          'idspieler' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'name' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '45',
+              'not null' => FALSE,
+          ),
+          'vorname' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '45',
+              'not null' => FALSE,
+          ),
+          'idlizenz' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'idverein' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'date_cre' => array(
+              'description' => 'Datum der Erstellung.',
+              'type' => 'int',
+              'not null' => TRUE,
+          ),
+          'date_ame' => array(
+              'description' => 'Datum der letzten Änderung.',
+              'type' => 'int',
+              'not null' => FALSE,
+          ),
+          'del_yn' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'char',
+              'length' => '1',
+              'not null' => TRUE,
+              'default' => '0',
+          ),
+      ),
+      'primary key' => array('idspieler'),
+      'indexes' => array(
+          'ix_spieler_lizenz1' => array('idlizenz'),
+          'ix_spieler_verein1' => array('idverein'),
+      ),
+  );
+  $schema['npv_liga_ligaspieler'] = array(
+      'description' => 'TODO: please describe this table!',
+      'fields' => array(
+          'idligaspieler' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'idteam' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'idspieler' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'date_cre' => array(
+              'description' => 'Datum der Erstellung.',
+              'type' => 'int',
+              'not null' => TRUE,
+          ),
+          'date_ame' => array(
+              'description' => 'Datum der letzten Änderung.',
+              'type' => 'int',
+              'not null' => FALSE,
+          ),
+      ),
+      'primary key' => array('idligaspieler'),
+      'indexes' => array(
+          'ix_ligaspieler_ligateam1' => array('idteam'),
+          'ix_ligaspieler_spieler1' => array('idspieler'),
+      ),
+  );
+  $schema['npv_liga_ligaspiel'] = array(
+      'description' => 'TODO: please describe this table!',
+      'fields' => array(
+          'idspiel' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'serial',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'kugeln' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'kugeln_gegner' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'spiel' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'size' => 'tiny',
+              'not null' => FALSE,
+          ),
+          'idspieler3' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'idspieler2' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'idspieler1' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'formation' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'varchar',
+              'length' => '45',
+              'not null' => FALSE,
+          ),
+          'idteam' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'idbegegnung' => array(
+              'description' => 'TODO: please describe this field!',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'date_cre' => array(
+              'description' => 'Datum der Erstellung.',
+              'type' => 'int',
+              'not null' => TRUE,
+          ),
+          'date_ame' => array(
+              'description' => 'Datum der letzten Änderung.',
+              'type' => 'int',
+              'not null' => FALSE,
+          ),
+      ),
+      'primary key' => array('idspiel'),
+      'indexes' => array(
+          'ix_ligaspiel_begegnung1' => array('idbegegnung'),
+          'ix_spiel_spieler1' => array('idspieler1'),
+          'ix_spiel_spieler2' => array('idspieler2'),
+          'ix_spiel_spieler3' => array('idspieler3'),
+      ),
+  );
+  $schema['npv_liga_ligatabelle'] = array(
+    'description' => 'TODO: please describe this table!; InnoDB free: 23552 kB',
+    'fields' => array(
+      'platz' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'not null' => FALSE,
+      ),
+      'matchpunkte' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'not null' => TRUE,
+      ),
+      'siege' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'kugeldifferenz' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'kugelgewonnen' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'idligateam' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'idliga' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'idligatabelle' => array(
+        'description' => 'TODO: please describe this field!',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'date_cre' => array(
+        'description' => 'Datum der Erstellung.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'date_ame' => array(
+        'description' => 'Datum der letzten Änderung.',
+        'type' => 'int',
+        'not null' => FALSE,
+      ),
+      'siege_selbst' => array(
+        'description' => 'TODO: beschreibe dieses Feld!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'siege_gegner' => array(
+        'description' => 'TODO: beschreibe dieses Feld!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'spiele_selbst' => array(
+        'description' => 'TODO: beschreibe dieses Feld!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'spiele_gegner' => array(
+        'description' => 'TODO: beschreibe dieses Feld!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'kugeln_selbst' => array(
+        'description' => 'TODO: beschreibe dieses Feld!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'kugeln_gegner' => array(
+        'description' => 'TODO: beschreibe dieses Feld!',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('idligatabelle'),
+  );
+  
+  $schema['npv_liga_rechte'] = array(
+      'description' => 'NPV Liga Rechte für Erfassung von Ergebnissen',
+      'fields' => array(
+          'uid' => array(
+              'description' => 'User ID',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'melderechte' => array(
+              'description' => 'In diesen Ligen darf der User Ergebismeldungen erfassen.',
+              'type' => 'varchar',
+              'length' => '255',
+              'not null' => TRUE,
+          ),
+      ),
+      'primary key' => array('uid'),
+  );
+  
+  return $schema;
+}

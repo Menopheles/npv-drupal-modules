@@ -1,0 +1,464 @@
+<?php 
+/**
+ * @file
+ *
+ * Install Datei für das Modul NPV-Rangliste
+ */
+
+
+function npv_rangliste_schema() {
+  $schema['npv_rl_einzel'] = array(
+    'description' => 'Rangliste Einzel',
+    'fields' => array(
+      'LizNr' => array(
+        'description' => 'Lizenz-Nr. des Spielers',
+        'type' => 'varchar',
+        'length' => '11',
+        'not null' => TRUE,
+      ),
+      'VKennZif' => array(
+        'description' => 'Vereinskennziffer',
+        'type' => 'varchar',
+        'length' => '7',
+        'not null' => TRUE,
+      ),
+      'Spieler' => array(
+        'description' => 'Vollständiger Name des Spielers.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'Alter' => array(
+        'description' => 'Alter in Jahren',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'Sex' => array(
+        'description' => 'Geschlecht',
+        'type' => 'varchar',
+        'length' => '1',
+        'not null' => TRUE,
+      ),
+      'event01' => array(
+        'description' => 'Anzahl Punkte des 1. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event02' => array(
+        'description' => 'Anzahl Punkte des 2. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event03' => array(
+        'description' => 'Anzahl Punkte des 3. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event04' => array(
+        'description' => 'Anzahl Punkte des 4. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event05' => array(
+        'description' => 'Anzahl Punkte des 5. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event06' => array(
+        'description' => 'Anzahl Punkte des 6. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event07' => array(
+        'description' => 'Anzahl Punkte des 7. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event08' => array(
+        'description' => 'Anzahl Punkte des 8. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event09' => array(
+        'description' => 'Anzahl Punkte des 9. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event10' => array(
+        'description' => 'Anzahl Punkte des 10. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event11' => array(
+        'description' => 'Anzahl Punkte des 11. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event12' => array(
+        'description' => 'Anzahl Punkte des 12. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event13' => array(
+        'description' => 'Anzahl Punkte des 13. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event14' => array(
+        'description' => 'Anzahl Punkte des 14. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event15' => array(
+        'description' => 'Anzahl Punkte des 15. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event16' => array(
+        'description' => 'Anzahl Punkte des 16. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event17' => array(
+        'description' => 'Anzahl Punkte des 17. Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event_J' => array(
+        'description' => 'Anzahl Punkte des 1. Jugend-Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event_V' => array(
+        'description' => 'Anzahl Punkte des 1. Veteranen-Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'event_F' => array(
+        'description' => 'Anzahl Punkte des 1. Frauen-Ranglistenturniers.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'Jahr_01' => array(
+        'description' => 'Punkte 1 Jahr vorher.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'Jahr_02' => array(
+        'description' => 'Punkte 2 Jahre vorher.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'Starts' => array(
+        'description' => 'Anzahl Starts.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'Pkte' => array(
+        'description' => 'Punkte',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'Rang' => array(
+        'description' => 'Rang',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'Mittel' => array(
+        'description' => 'Punktedurchschnitt.',
+        'type' => 'float',
+        'not null' => FALSE,
+      ),
+      'Pkte_total' => array(
+        'description' => 'Gesamtpunktzahl, auch nicht in die Wertung eingeflossene.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'RgZuvor' => array(
+        'description' => 'Rang nach dem vorherigen Ranglistenturnier.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'Wert6' => array(
+        'description' => 'Kleinste Punktezahl der 6 Wertungen.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'JugPkt' => array(
+        'description' => 'Punkte nur für die Jugendrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'JugRang' => array(
+        'description' => 'Rang innerhalb der Jugendrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'JugStarts' => array(
+        'description' => 'Starts für die Jugendrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'VetPkt' => array(
+        'description' => 'Punkte für die Veteranenrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'VetRang' => array(
+        'description' => 'Rang innerhalb der Veteranenrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'VetStarts' => array(
+        'description' => 'Starts für die Veteranenrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'FemPkt' => array(
+        'description' => 'Punkte für die Frauenrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'FemRg' => array(
+        'description' => 'Rang innerhalb der Frauenrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'FemStarts' => array(
+        'description' => 'Starts für die Frauenrangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+      'Jahr' => array(
+        'description' => 'Jahr dieser Rangliste.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'join_einzel' => array(
+        'description' => 'Feld für Views-Join auf Vereinstabelle.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('LizNr', 'Jahr'),
+  );
+  // Eventtabelle
+  $schema['npv_rl_event'] = array(
+    'description' => 'Ranglisten Events',
+    'fields' => array(
+      'InputSpalte' => array(
+        'description' => 'Interne Eventbezeichnung',
+        'type' => 'varchar',
+        'length' => '7',
+        'not null' => TRUE,
+      ),
+      'EventDatum' => array(
+        'description' => 'Datum des Events.',
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => 0,
+      ),
+      'EventLast' => array(
+        'description' => 'Kennzeichen letzter verarbeiteter Event des Jahres.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'EventName' => array(
+        'description' => 'Name des Events.',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => '255',
+      ),
+      'EventForm' => array(
+        'description' => 'Formation des Events (doublette,triplette,..).',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => '255',
+      ),
+      'EventModus' => array(
+        'description' => 'Modus des Events (KO-ABCD,Schweizer,..).',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => '255',
+      ),
+      'EventOrt' => array(
+        'description' => 'Ort des Events.',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => '255',
+      ),
+      'EventAusrichter' => array(
+        'description' => 'Ausrichter des Events.',
+        'type' => 'varchar',
+        'not null' => FALSE,
+        'length' => '255',
+      ),
+      'NVPStarter' => array(
+        'description' => 'Anzahl Starter mit NPV-Lizenz.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'TotalStarter' => array(
+        'description' => 'Gesamt Anzahl Starter.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'NPVvereine' => array(
+        'description' => 'Anzahl NPV-Vereine.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'Jahr' => array(
+        'description' => 'Jahr dieser Events.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('InputSpalte', 'Jahr'),
+  );
+  // Vereinetabelle
+  $schema['npv_rl_verein'] = array(
+      'description' => 'Ranglisten Vereine',
+      'fields' => array(
+          'LizNr' => array(
+              'description' => 'Lizenz Nr. des Vereins.',
+              'type' => 'varchar',
+              'length' => '7',
+              'not null' => TRUE,
+          ),
+          'Verein' => array(
+              'description' => 'Name des Vereins.',
+              'type' => 'varchar',
+              'length' => '255',
+              'not null' => TRUE,
+          ),
+          'zuvor' => array(
+              'description' => 'Rang vor dem aktuellen.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'Rang' => array(
+              'description' => 'Aktueller Rang.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'Punkte' => array(
+              'description' => 'Punkte des Vereins.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'Werte' => array(
+              'description' => 'Anzahl berücksichtigter Wertungen.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'Aktive' => array(
+              'description' => 'Anzahl aktive Spieler des Vereins.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'Mittel' => array(
+              'description' => 'Punktedurchschnitt.',
+              'type' => 'float',
+              'not null' => FALSE,
+          ),
+          'Total' => array(
+              'description' => 'Alle Punkte des Vereins, auch die nicht gewerteten.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'Starts' => array(
+              'description' => 'Anzahl Starts.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'zuletzt' => array(
+              'description' => 'Anzahl Punkte beim letzten Wettbewerb.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'RgJahr_1' => array(
+              'description' => 'Rang im Jahr vorher.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'RgJahr_2' => array(
+              'description' => 'Rang im 2. Jahr vorher.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+          ),
+          'Jahr' => array(
+              'description' => 'Jahr dieser Events.',
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+          ),
+          'join_einzel' => array(
+              'description' => 'Feld für Views-Join auf Einzeltabelle.',
+              'type' => 'varchar',
+              'length' => '255',
+              'not null' => TRUE,
+          ),
+      ),
+      'primary key' => array('LizNr', 'Jahr'),
+  );
+  return $schema;
+}

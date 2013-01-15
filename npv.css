@@ -1,0 +1,91 @@
+/* 
+    Document   : npv
+    Created on : 07.11.2012, 21:13:08
+    Author     : Holger
+    Description:
+        NPV spezifische CSS Einstellungen.
+*/
+
+/* NPV spezifische Anpassungen */
+#npv-spieler-add-form .form-item label {
+  float: left;
+  min-width: 120px;
+}
+#npv-spieler-add-form .form-item-sperrebis-date .description,
+#npv-spieler-add-form .form-item-sperrevon-date .description,
+#npv-spieler-add-form .form-item-funkbis-date .description,
+#npv-spieler-add-form .form-item-funkvon-date .description,
+#npv-spieler-add-form .form-item-geburtsdatum-date .description{
+  display: none;
+}
+#npv-spieler-add-form .form-item {
+  margin: 0px;
+}
+#npv-spieler-add-form td {
+  padding: 0 5px;
+}
+#npv-spieler-add-form .container-inline-date .date-padding {
+  padding: 0px;
+}
+
+ul.action-links {
+  /*float: right; /* LTR */
+  font-size: 0.923em;
+  padding: 0 3px 5px;
+  line-height: 1.385em;
+  overflow: hidden;
+  background-color: #fff;
+}
+ul.action-links li {
+  margin: 0 5px;
+  /*float: left; /* LTR */
+}
+ul.action-links li a {
+  background-color: #ddd;
+  color: #000;
+  display: inline-block;
+}
+ul.action-links li a,
+ul.action-links li a:hover,
+ul.action-links li.active a,
+ul.action-links li.active a.active {
+  padding: 2px 10px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+}
+ul.action-links li a:hover,
+ul.action-links li.active a,
+ul.action-links li.active a.active {
+  color: #fff;
+  background: #666;
+}
+
+#npv_filter .filters,
+#npv_filter .filterfilters {
+  width: 60em;
+}
+
+#npv_filter .filterfilters {
+  margin: 2px 0px 2px 0px;
+  display: inline-block;
+}
+
+#npv_filter .form-item-verein,
+#npv_filter .form-item-lizenz {
+  float: left;
+}
+
+#npv_filter .form-item-name,
+#npv_filter .form-item-ort {
+  clear: both;
+  float: left;
+}
+
+#npv_filter .form-item-vereinsfilter,
+#npv_filter .form-item-namefilter,
+#npv_filter .form-item-ortfilter,
+#npv_filter .form-item-lizenzfilter {
+  padding-left: 1em;
+  display: inline;
+}

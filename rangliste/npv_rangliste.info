@@ -1,0 +1,12 @@
+name = NPV Rangliste
+description = Modul zum importieren von Ranglisten aus csv-Dateien.
+core = 7.x
+package = NPV
+dependencies[] = npv
+
+; Information added by drupal.org packaging script on 2011-12-23
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "npv"
+datestamp = "1324599573"
+

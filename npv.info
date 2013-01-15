@@ -1,0 +1,14 @@
+; $Id$
+name = NPV Modul
+description = Verbandsverwaltung für den NPV
+package = NPV
+core = 7.x
+dependencies[] = views
+dependencies[] = geocoder
+stylesheets[all][] = npv.css
+
+; Information added by drupal.org packaging script on 2011-12-23
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "npv"
+datestamp = "1324599573"

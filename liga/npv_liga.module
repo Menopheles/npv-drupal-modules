@@ -1,0 +1,197 @@
+<?php
+/**
+ * Implements hook_help.
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function npv_liga_help($path, $arg) {
+  switch ($path) {
+    case "admin/help#npv_liga":
+      return '<p>' . t("Module for managing petanque leagues in the NPV.") . '</p>';
+      break;
+  }
+}
+
+/**
+ * Implements hook_permission
+ *
+ * @return array
+ */
+function npv_liga_permission() {
+  return array(
+      'access ligamanagement' => array(
+          'title' => 'Ligaverwaltung',
+          'description' => 'Administration der Ligaverwaltung für den NPV.',
+      ),
+      'access ligagroups' => array(
+          'title' => 'Ligaergebnisse',
+          'description' => 'Erfassen der Ligaergebnisse durch den Ligaverwantwortlichen.',
+      ),
+  );
+}
+
+/**
+ * Implements hook_menu.
+ */
+function npv_liga_menu() {
+  $items['admin/content/liga'] = array(
+      'type' => MENU_LOCAL_TASK,
+      'title' => 'Liga Import',
+      'page callback' => 'npv_liga_import',
+      'page arguments' => array(t('A menu entry with no menu link (MENU_CALLBACK) is at <a href="!link">!link</a>', array('!link' => url('menu_example/path_only/callback')))),
+      'access arguments' => array('access ligamanagement'),
+      'file' => 'npv_liga.inc',
+      'weight' => 20,
+  );
+  $items['liga'] = array(
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Liga Info',
+      'description' => 'Infoseite für Ligaverwaltung.',
+      'page callback' => 'npv_liga_page',
+      'file' => 'npv_liga.inc',
+      'access arguments' => array('access ligamanagement'),
+      'menu_name' => 'NPV-Ligaverwaltung',
+  );
+  $items['liga/info'] = array(
+       'type' => MENU_DEFAULT_LOCAL_TASK,
+       'title' => 'Liga Info',
+       'description' => 'Infoseite für Ligaverwaltung.',
+       'page callback' => 'npv_liga_page',
+       'file' => 'npv_liga.inc',
+       'access arguments' => array('access ligamanagement'),
+       'menu_name' => 'NPV-Ligaverwaltung',
+  );
+  $items['liga/ligen'] = array(
+      'type' => MENU_LOCAL_TASK,
+      'title' => 'Ligen',
+      'description' => 'Ligen bearbeiten.',
+      'page callback' => 'npv_liga_admin',
+      'file' => 'npv_liga.inc',
+      'access arguments' => array('access ligamanagement'),
+      'menu_name' => 'NPV-Ligaverwaltung',
+  );
+  $items['liga/ligarights'] = array(
+      'type' => MENU_LOCAL_TASK,
+      'title' => 'Ligaberechtigungen',
+      'description' => 'Berechtigungen für das Melden von Ergebnissen verwalten.',
+      'page callback' => 'npv_liga_rechte',
+      'file' => 'npv_liga.inc',
+      'access arguments' => array('access ligamanagement'),
+      'menu_name' => 'NPV-Ligaverwaltung',
+  );
+  $items['liga/ligarights/edit/%'] = array(
+      'title' => 'Ligarechte editieren',
+      'description' => 'Ligarechte bearbeiten.',
+      'page callback' => 'npv_liga_rechte_edit',
+      'file' => 'npv_liga.inc',
+      'page arguments' => array(3),
+      'access arguments' => array('access ligamanagement'),
+      'menu_name' => 'NPV-Ligaverwaltung',
+      'type' => MENU_CALLBACK,
+  );
+  $items['liga/ligarights/delete/%'] = array(
+      'title' => 'Ligarechte löschen',
+      'description' => 'Ligarechte löschen.',
+      'page callback' => 'npv_liga_rechte_del',
+      'file' => 'npv_liga.inc',
+      'page arguments' => array(3),
+      'access arguments' => array('access ligamanagement'),
+      'menu_name' => 'NPV-Ligaverwaltung',
+      'type' => MENU_CALLBACK,
+  );
+  $items['liga/ligarights/add'] = array(
+      'title' => 'Ligarechte neu vergeben',
+      'description' => 'Ligarechte für einen neuen User vergeben.',
+      'page callback' => 'npv_liga_rechte_add',
+      'file' => 'npv_liga.inc',
+      'page arguments' => array(3),
+      'access arguments' => array('access ligamanagement'),
+      'menu_name' => 'NPV-Ligaverwaltung',
+      'type' => MENU_CALLBACK,
+  );
+  $items['liga/ligarights/name/autocomplete'] = array(
+      'title' => 'Username autocomplete',
+      'page callback' => 'username_autocomplete',
+      'access arguments' => array('access ligamanagement'),
+      'type' => MENU_CALLBACK,
+      'file' => 'npv_liga.autocomplete.inc',
+  );
+  $items['liga/result/edit/%'] = array(
+      'title' => 'Ligaergebnisse bearbeiten.',
+      'page callback' => 'npv_liga_result_edit',
+      'page arguments' => array(3),
+      'access callback' => '_npv_liga_result_edit_access',
+      'access arguments' => array(3),
+      'type' => MENU_CALLBACK,
+      'weight' => 5,
+      'file' => 'npv_liga.ergebnisse.inc',
+  );
+  $items['liga/spiel/edit/%'] = array(
+      'title' => 'Ligaspiel bearbeiten.',
+      'page callback' => 'npv_liga_spiel_edit',
+      'page arguments' => array(3),
+      'access callback' => '_npv_liga_result_edit_access',
+      'access arguments' => array(3),
+      'type' => MENU_CALLBACK,
+      'weight' => 6,
+      'file' => 'npv_liga.spiel.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_views_api
+ *
+ * Gibt vor, für welche Version von Views die implementierten Funktionen sind und
+ * den Pfad für die Datei *.views.inc
+ *
+ * @return array
+ */
+function npv_liga_views_api() {
+  return array(
+      'api' => 3,
+      'path' => drupal_get_path('module', 'npv_liga'),
+  );
+}
+
+/**
+ * Feststellen, ob der aktuelle User das Recht hat auf die Ergebniserfassungsseite
+ * der übergebenen Liga zuzugreifen.
+ *  
+ * @param int $idliga
+ * 
+ * @return boolean
+ */
+function _npv_liga_result_edit_access($idliga) {
+  global $user;
+  if (user_access('access ligamanagement') === TRUE) {
+    return TRUE;
+  } 
+  elseif (user_access('access ligagroups')) {
+    $query = db_select('npv_liga_rechte', 'a');
+    $query  ->join('users', 'b', 'a.uid = b.uid');
+    $query  ->addfield('b', 'name', 'name');
+    $query  ->fields('a', array('melderechte'));
+    $query  ->condition('b.uid', $user->uid, '=');
+    $result = $query->execute();
+    $data = $result->fetchObject();
+    if ($data !== FALSE) {
+      $ligen = explode(';', $data->melderechte);
+      $pos = array_search($idliga, $ligen);
+      if ($pos === FALSE) {
+        return FALSE;
+      } 
+      else {
+        return TRUE;
+      }
+    }
+  } 
+  else {
+    return FALSE;
+  }
+}

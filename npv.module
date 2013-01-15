@@ -1,0 +1,333 @@
+<?php
+// $Id$
+
+/**
+ * Displays help and module information.
+ * @param path
+ *   Which path of the site we're displaying help.
+ * @param arg
+ *   Array that holds the current path as would be returned from arg() function.
+ * @return
+ *   help text for the path.
+ */
+function npv_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#npv":
+      $output = '<p>' . t("Ein Modul mit dem die Verbandsverwaltung des NPV abgebildet wird.") . '</p>';
+      break;
+  }
+  return $output;
+} // function npv_help
+
+/**
+ * Valid permissions for this module
+ *
+ * @return array
+ *   An array of valid permissions for the onthisdate module.
+ */
+function npv_permission() {
+  return array('access NPV content' => array(
+          'title' => 'NPV-Verwaltung',
+          'description' => 'NPV - Mitglieder und Lizenzverwaltung.',
+      ),
+  );
+} // function npv_perm
+
+/**
+ * Generate HTML for the onthisdate block.
+ *
+ * @param op
+ *   the operation from the URL.
+ * @param delta
+ *   offset.
+ * @return
+ *   block HTML.
+ */
+function npv_block($op='list', $delta=0) {
+  // listing of blocks, such as on the admin/block page
+  if ($op == "list") {
+    $block[0]["info"] = t('NPV Verbandsverwaltung');
+    return $block;
+  }
+  elseif ($op == 'view') {
+  // our block content
+    // content variable that will be returned for display
+    $block_content = '';
+
+    // Get today's date
+    $today = getdate();
+
+    // calculate midnight one week ago
+    $start_time = mktime(0, 0, 0, $today['mon'], ($today['mday'] - 7), $today['year']);
+
+    // we want items that occur only on the day in question, so
+    // calculate 1 day
+    $end_time = $start_time + 86400;
+    // 60 * 60 * 24 = 86400 seconds in a day
+
+    $query = "SELECT nid, title, created FROM " .
+             "{node} WHERE created >= '%d' " .
+             " AND created <= '%d'";
+
+    $queryResult =  db_query($query, $start_time, $end_time);
+    while ($links = db_fetch_object($queryResult)) {
+      $block_content .= l($links->title, 'node/' . $links->nid) . '<br />';
+    }
+    // check to see if there was any content before setting up the block
+    if ($block_content == '') {
+      // no content from a week ago, return nothing.
+      return;
+    }
+    // set up the block
+    $block['subject'] = 'NPV';
+    $block['content'] = $block_content;
+    return $block;
+  }
+} // end npv_block
+
+function npv_page() {
+  return "alles klar";
+}
+
+
+function npv_menu( ) {
+  return array(
+    'admin/settings/npv' => array(
+    'title' => 'NPV module settings',
+    'description' => 'Einstellungen für das NPV-Modul',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('npv_admin'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+   ),
+    'spieler/info' => array(
+      'title' => 'Spieler Info',
+      'description' => 'Infoseite für Spieler.',
+      'page callback' => 'npv_spieler_page_long',
+      'file' => 'npv.spieler.inc',
+      'access arguments' => array('access NPV content'),
+      'menu_name' => 'NPV-Verwaltung',
+      'type' => MENU_NORMAL_ITEM,
+    ),
+    'admin/npv' => array(
+      'title' => 'NPV-Verwaltung',
+      'description' => 'Verwaltung für den NPV.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('npv_vereine_admin_form'),
+      'file' => 'npv.vereine.inc',
+      'access arguments' => array('access NPV content'),
+      'weight' => -10,
+    ),
+    
+    'admin/npv/vereine' => array(
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'title' => 'NPV-Vereine',
+      'description' => 'Verwaltung NPV-Vereine.',
+    ),
+      
+    'admin/npv/vereine/neu' => array(
+      'title' => 'Neuer Verein',
+      'description' => 'Neuen Verein anlegen.',
+      'page callback' => 'npv_vereine_add',
+      'file' => 'npv.vereine.inc',
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_LOCAL_ACTION,
+    ),
+      
+    'admin/npv/vereine/edit/%' => array(
+      'title' => 'Verein editieren',
+      'description' => 'Verein bearbeiten.',
+      'page callback' => 'npv_vereine_edit',
+      'file' => 'npv.vereine.inc',
+      'page arguments' => array(4),
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_CALLBACK,
+    ),
+    
+    'admin/npv/vereine/exportcsv' => array(
+      'title' => 'Vereine exportieren',
+      'description' => 'Vereine nach Excel CSV exportieren.',
+      'page callback' => 'export_vereine_excel_csv',
+      'file' => 'npv.vereine.inc',
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_LOCAL_ACTION,
+    ),
+    
+    'admin/npv/spieler' => array(
+      'type' => MENU_LOCAL_TASK,
+      'title' => 'NPV-Spieler',
+      'description' => 'Verwaltung NPV-Spieler.',
+      //'page callback' => 'npv_spieler_admin_form',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('npv_spieler_admin_form'),
+      'file' => 'npv.spieler.inc',
+      'access arguments' => array('access NPV content'),
+      'weight' => -10,
+    ),
+      
+    'admin/npv/spieler/neu' => array(
+      'title' => 'neuer Spieler',
+      'description' => 'Neuen Spieler anlegen.',
+      'page callback' => 'npv_spieler_add',
+      'file' => 'npv.spieler.inc',
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_LOCAL_ACTION,
+    ),
+
+    'admin/npv/spieler/importcsv' => array(
+      'title' => 'Spieler importieren',
+      'description' => 'Spieler aus CSV-Datei importieren.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('npv_spieler_import_form'),
+      'file' => 'npv.spieler.inc',
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_LOCAL_ACTION,
+    ),
+
+    'admin/npv/spieler/exportcsv' => array(
+      'title' => 'Spieler exportieren',
+      'description' => 'Spieler in Excel-Datei(xls) exportieren.',
+      'page callback' => 'npv_spieler_export',
+      //'page arguments' => array('npv_spieler_export_form'),
+      'file' => 'npv.spieler.inc',
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_LOCAL_ACTION,
+    ),
+
+    'admin/npv/spieler/importxls' => array(
+      'title' => 'Spieler XLS Import',
+      'description' => 'Spieler aus Excel-Datei(xls) importieren.',
+      'page callback' => 'npv_spieler_import_xls',
+      //'page arguments' => array('npv_spieler_export_form'),
+      'file' => 'npv.spieler.inc',
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_LOCAL_ACTION,
+    ),
+
+    'admin/npv/spieler/edit/%' => array(
+      'title' => 'Spieler editieren',
+      'description' => 'Spieler bearbeiten.',
+      'page callback' => 'npv_spieler_edit',
+      'file' => 'npv.spieler.inc',
+      'page arguments' => array(4),
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_CALLBACK,
+    ),
+
+    'admin/npv/spieler/vereinswechsel/%' => array(
+      'title' => 'Vereinswechsel',
+      'description' => 'Vereinswechsel für einen Spieler durchführen.',
+      'page callback' => 'npv_spieler_vereinswechsel',
+      'file' => 'npv.spieler.inc',
+      'page arguments' => array(4),
+      'access arguments' => array('access NPV content'),
+      'menu_name' => 'NPV-Verwaltung',
+      'type' => MENU_CALLBACK,
+    ),
+    
+    'admin/npv/settings' => array(
+      'title' => 'NPV module settings',
+      'description' => 'Einstellungen für das NPV-Modul',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('npv_admin'),
+      'access arguments' => array('access administration pages'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 10,
+    ),
+      
+    'sportbund/autocomplete' => array(
+      'title' => 'Sportbund autocomplete',
+      'page callback' => 'sportbund_autocomplete',
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_CALLBACK,
+      'file' => 'npv.autocomplete.inc',
+    ),
+    'verein/autocomplete' => array(
+      'title' => 'Verein autocomplete',
+      'page callback' => 'verein_autocomplete',
+      'access arguments' => array('access NPV content'),
+      'type' => MENU_CALLBACK,
+      'file' => 'npv.autocomplete.inc',
+    )
+  );
+}
+
+
+function npv_views_api() {
+  return array(
+      'api' => 2,
+      'path' => drupal_get_path('module', 'npv'),
+  );
+}
+
+function npv_xcron() {
+  $sql = "SELECT idspieler, gesperrt_von, gesperrt_bis, gesperrt_text FROM {npv_spieler} ";
+  $sql .= "WHERE gesperrt = %d AND gesperrt_bis < %d";
+  $result = db_query($sql, 1, time());
+  while ($data = db_fetch_object($result)) {
+    $values = array(
+        'idspieler' => $data->idspieler,
+        'type' => '1',
+        'date_from' => $data->gesperrt_von,
+        'date_to' => $data->gesperrt_bis,
+        'remark' => $data->gesperrt_text,
+    );
+    drupal_write_record('npv_shistory', $values);
+    $sql = "UPDATE {npv_spieler} SET gesperrt = 0, gesperrt_von = NULL, gesperrt_bis = NULL, ";
+    $sql .= "gesperrt_text = NULL WHERE idspieler = " . $data->idspieler;
+    db_query($sql);
+  }
+}
+
+function npv_admin() {
+  menu_rebuild();
+  $query = "INSERT INTO npv_vereine (name, ort, lizenznr, website, anschrift, telefon, fax, sportbund, email, boulodrome, latitude, longitude, date_created,
+date_last_change)
+SELECT a.title, h.field_verein_ort_value, g.field_verein_lizenz_value, f.field_verein_homepage_value, c.field_verein_anschrift_value, 
+i.field_verein_telefon_value, e.field_verein_fax_value, k.name as sportbund, d.field_verein_email_value, 
+CONCAT_WS(', ' , m.name , m.street  , m.city ) AS boulodrome , case when isnull(m.latitude) = 1 THEN 0 ELSE m.latitude END as boulodrome_lat, case when isnull(m.longitude) = 1 THEN 0 ELSE m.longitude END as boulodrome_lon, 
+ a.created, a.changed
+FROM `node` a
+  left join node_revision b ON (b.nid = a.nid)
+  left join field_data_field_verein_anschrift c ON c.entity_id = a.nid
+  left join field_data_field_verein_email d ON d.entity_id = a.nid
+  left join field_data_field_verein_fax e ON e.entity_id = a.nid
+  left join field_data_field_verein_homepage f ON f.entity_id = a.nid
+  left join field_data_field_verein_lizenz g ON g.entity_id = a.nid
+  left join field_data_field_verein_ort h ON h.entity_id = a.nid
+  left join field_data_field_verein_telefon i ON i.entity_id = a.nid
+  left join field_data_field_sportbund1 j ON j.entity_id = a.nid
+  left join taxonomy_term_data k ON k.tid = j.field_sportbund1_tid
+  left join location_instance l ON l.nid = a.nid
+  left join location m ON m.lid = l.lid
+WHERE type = 'verein'";
+  //$result = db_query('DELETE FROM npv_vereine');
+//$result = db_query('DELETE from npv_spieler');
+  //$result = db_query($query);
+  $form['npvbilder'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Spielerbilder'),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+  );
+  $form['npvbilder']['npv_path1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Pfad für Spielerbilder'),
+    '#default_value' => variable_get('npv_path1', ''),
+    '#size' => 60,
+    '#maxlength' => 250,
+    '#description' => t("Der Pfad in dem die Spielerbilder abgelegt werden sollen. Ist der Pfad nicht vorhanden, wird versucht das Verezeichnis anzulegen."),
+    '#required' => TRUE,
+  );
+
+  return system_settings_form($form);
+}
+
+function npv_admin_validate($form, &$form_state) {
+  $directory = 'public://'.$form_state['values']['npv_path1'];
+  $result = file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS | FILE_CREATE_DIRECTORY);
+  if (!$result) {
+    form_set_error('npv_path1', t('Der Pfad existiert nicht und konnte auch nicht erstellt werden.'));
+  }
+}

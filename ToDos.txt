@@ -1,0 +1,124 @@
+To Do's und Hinweise für die Webseite des NPV
+
+beim Import von csv Dateien die php function mb_detect_encoding verwenden?!
+
+|  0. In der Ligaverwaltung
+|     Möglichkeit bereits erfasste Ergebnisse zurücksetzen zu können.
++-> erledigt 07.11.2011
+
+1. Modul "labjs" deinstallieren
+   wird nirgends benutzt
+
+2. Modul Gmap ersetzen
+   Modul gmap deaktivieren und (deinstallieren - erst nach Test des neuen Moduls)
+
+   Modul Geofield im Zusammenspiel mit "Address Field" und Geocoder verwenden
+     benötigt Modul GeoPHP
+     library geophp downloaden und unter sites/all/librarys hochladen
+     geophp, geofield und geofield map aktivieren
+     Address Field aktivieren
+     Geocoder aktivieren
+     Inhaltstyp Termin anpassen:
+       Feld Adresse vom Modul Address Field hinzufügen.
+       Feld Geofield hinzufügen - Steuerelement = geocode from another field
+       Ausgabe des Inhaltstypen anpassen.
+
+   Maps mit openlayers darstellen:
+     OpenLayers, OpenLayers UI und OpenLayers Views aktivieren.
+     Icons hochladen
+     Views erstellen
+     Blöcke anpassen
+     View für Vereinskarte erstellen.
+     Daten in Inhaltstyp Termin von Feldern aus Standort in Adress Field Addresse übertragen (leider manuell)
+
+3. Anpassungen für CSV-Uploads
+   automatisches umwandeln in UTF-8
+   Modul PHPExcel installieren.
+
+4. Anpassungen für Ranglistenimport
+   Upload sollte nur aus den Platzierungen des jeweiligen Turniers bestehen.
+   Voraussetzungen:
+     Lizenzen sind online verfügbar
+     Vereinsinformationen sind online verfügbar.
+   Änderungen:
+     Aufbau der Datenbanktabellen anpassen
+     Funktion zur Verarbeitung der upgeloadeten Daten anpassen
+     Views auf neue Tabellenstrukturen anpassen.
+
+5. styles.css von theme "seven" aktualisieren.
+
+Problemlösungen:
+Formulare mit ajax Funktionialität:
+http://api.drupal.org/api/drupal/includes!ajax.inc/group/ajax/7
+
+-----------------------------
+
+Bilder aus dem private:// Bereich ins html einbinden:
+function data_uri($file, $mime)
+{
+  $contents = file_get_contents($file);
+  $base64   = base64_encode($contents);
+  return ('data:' . $mime . ';base64,' . $base64);
+}
+?>
+
+<img src="<?php echo data_uri('elephant.png','image/png'); ?>" alt="Ein Elefant" />
+
+------------------------------
+
+http://drupal.org/project/bootstrap_optimizer - erledigt.
+http://drupal.org/project/dates
+http://drupal.org/project/tsort
+
+
+SQL für Vereine:
+
+SELECT a.title, a.uid, a.created, a.changed, b.log, c.field_verein_anschrift_value, d.field_verein_email_value, e.field_verein_fax_value,
+f.field_verein_homepage_value, g.field_verein_lizenz_value, h.field_verein_ort_value, i.field_verein_telefon_value, j.field_sportbund1_tid,
+k.name as sportbund, l.lid, m.name as boulodrom_name, m.street as boulodrome_strasse, m.city as boulodrome_city, m.latitude as boulodrome_lat,
+m.longitude as boulodrome_lon
+FROM `node` a
+  left join node_revision b ON b.nid = a.nid AND b.vid = a.vid
+  left join field_data_field_verein_anschrift c ON c.entity_id = a.nid
+  left join field_data_field_verein_email d ON d.entity_id = a.nid
+  left join field_data_field_verein_fax e ON e.entity_id = a.nid
+  left join field_data_field_verein_homepage f ON f.entity_id = a.nid
+  left join field_data_field_verein_lizenz g ON g.entity_id = a.nid
+  left join field_data_field_verein_ort h ON h.entity_id = a.nid
+  left join field_data_field_verein_telefon i ON i.entity_id = a.nid
+  left join field_data_field_sportbund1 j ON j.entity_id = a.nid
+  left join taxonomy_term_data k ON k.tid = j.field_sportbund1_tid
+  left join location_instance l ON l.nid = a.nid AND l.vid = a.vid
+  left join location m ON m.lid = l.lid
+WHERE type = 'verein'
+
+INSERT INTO npv_vereine (name, ort, lizenznr, website, anschrift, telefon, fax, sportbund, email, boulodrome, latitude, longitude, date_created,
+date_last_change, uid)
+SELECT a.title, h.field_verein_ort_value, g.field_verein_lizenz_value, f.field_verein_homepage_value, c.field_verein_anschrift_value, 
+i.field_verein_telefon_value, e.field_verein_fax_value, k.name as sportbund, d.field_verein_email_value, 
+CONCAT_WS('\n' , m.name , m.street  , m.city ) AS boulodrome , case when isnull(m.latitude) = 1 THEN 0 ELSE m.latitude END as boulodrome_lat, 
+case when isnull(m.longitude) = 1 THEN 0 ELSE m.longitude END as boulodrome_lon, a.created, a.changed, 1 as uid
+FROM `node` a
+  left join node_revision b ON b.nid = a.nid AND b.vid = a.vid
+  left join field_data_field_verein_anschrift c ON c.entity_id = a.nid
+  left join field_data_field_verein_email d ON d.entity_id = a.nid
+  left join field_data_field_verein_fax e ON e.entity_id = a.nid
+  left join field_data_field_verein_homepage f ON f.entity_id = a.nid
+  left join field_data_field_verein_lizenz g ON g.entity_id = a.nid
+  left join field_data_field_verein_ort h ON h.entity_id = a.nid
+  left join field_data_field_verein_telefon i ON i.entity_id = a.nid
+  left join field_data_field_sportbund1 j ON j.entity_id = a.nid
+  left join taxonomy_term_data k ON k.tid = j.field_sportbund1_tid
+  left join location_instance l ON l.nid = a.nid AND l.vid = a.vid
+  left join location m ON m.lid = l.lid
+WHERE type = 'verein'
+
+UPDATE npv_vereine set boulodrome = right(boulodrome,length(boulodrome)-2) WHERE left(boulodrome,2) = '\n'
+
+
+
+    Der Verein für Spieler Joachim Riekers konnte aus der Lizenznr.: 007-003-014nicht ermittelt werden.
+    Der Verein für Spieler Cezmi GÃ¶zÃ¼batik konnte aus der Lizenznr.: 007-003-027nicht ermittelt werden.
+    Der Verein für Spieler Felix Paul Elias Gentler konnte aus der Lizenznr.: 007-003-030nicht ermittelt werden.
+    Der Verein für Spieler Ricarda Bavendiek konnte aus der Lizenznr.: 007-003-032nicht ermittelt werden.
+

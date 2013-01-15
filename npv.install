@@ -1,0 +1,474 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install file for npv module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function npv_install() {
+  // Create tables.
+  //drupal_install_schema('npv');
+  $t = get_t();
+  //db_query("INSERT INTO {menu_custom} (menu_name, title, description) VALUES ('%s', '%s', '%s')", array('NPV-Verwaltung', $t('NPV-Verwaltung'), $t('Die Verwaltung für den NPV.')));
+  db_insert('menu_custom')
+  ->fields(array('menu_name', 'title', 'description'))
+  ->values(array('NPV-Verwaltung', $t('NPV-Verwaltung'), $t('Die Verwaltung für den NPV.')))
+  ->execute();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function npv_uninstall() {
+  // Remove tables.
+  //drupal_uninstall_schema('npv');
+  db_delete('menu_custom')
+  ->condition('menu_name', 'Verwaltung')
+  ->execute();
+  menu_rebuild();
+}
+
+/**
+ * Implementation of hook__schema().
+ */
+function npv_schema() {
+  $schema['npv_vereine'] = array(
+  'description' => t('Die Vereine im NPV.'),
+  'fields' => array(
+    'idvereine' => array(
+      'description' => t('ID-Nummer des Vereins. Wird vom Programm vergeben.'),
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'name' => array(
+      'description' => t('Name des Vereins.'),
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'ort' => array(
+      'description' => t('Ort des Vereins.'),
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'lizenznr' => array(
+      'description' => t('Lizenznummer des Vereins inklusive der Verbandnummer Format ###-###.'),
+      'type' => 'varchar',
+      'length' => '7',
+      'not null' => FALSE,
+    ),
+    'website' => array(
+      'description' => t('Die Homepage des Vereins'),
+      'type' => 'varchar',
+      'length' => '200',
+      'not null' => FALSE,
+    ),
+    'anschrift' => array(
+      'description' => t('Anschrift des Vereins.'),
+      'type' => 'varchar',
+      'length' => '500',
+      'not null' => FALSE,
+    ),
+    'telefon' => array(
+      'description' => t('Telefonnummer für die Kontaktadresse des Vereins.'),
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'fax' => array(
+      'description' => t('Faxnummer für die Kontaktadresse des Vereins.'),
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'sportbund' => array(
+      'description' => t('Sportbund.'),
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'email' => array(
+      'description' => t('E-mailanschrift für die Kontaktadress des Vereins.'),
+      'type' => 'varchar',
+      'length' => '200',
+      'not null' => FALSE,
+    ),
+    'boulodrome' => array(
+      'description' => t('Boulodrôme des Vereins.'),
+      'type' => 'varchar',
+      'length' => '200',
+      'not null' => FALSE,
+    ),
+     'latitude' => array(
+      'description' => t('Breitengrad des Bouldrômes.'),
+      'type' => 'numeric',
+      'not null' => TRUE,
+      'default' => 0,
+      'precision' => '10',
+      'scale' => '6',
+    ),
+    'longitude' => array(
+      'description' => t('Längengrad des Boulodrômes.'),
+      'type' => 'numeric',
+      'not null' => TRUE,
+      'default' => 0,
+      'precision' => '10',
+      'scale' => '6',
+    ),
+    'date_last_change' => array(
+      'description' => t('Datum der letzten Änderung.'),
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'date_created' => array(
+      'description' => t('Datum der Erstellung dieses Datensatzes.'),
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'del_yn' => array(
+      'description' => t('Kennzeichen ob der Verein als gelöscht anzusehen ist.'),
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'uid' => array(
+      'description' => 'ID des Benutzers der die letzte Änderung vorgenommen hat',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('idvereine'),
+);
+
+  $schema['npv_vereine_hist'] = array(
+  'description' => 'Historientabelle für die Vereine im NPV. Zum Verfolgen von Änderungen.',
+  'fields' => array(
+    'hid' => array(
+      'description' => 'ID-Nummer der Änderung. Wird vom Programm vergeben.',
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'idvereine' => array(
+      'description' => 'ID-Nummer des Vereins. Wird vom Programm vergeben.',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'name' => array(
+      'description' => 'Name des Vereins.',
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'ort' => array(
+      'description' => 'Ort des Vereins.',
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'lizenznr' => array(
+      'description' => 'Lizenznummer des Vereins inklusive der Verbandnummer Format ###-###.',
+      'type' => 'varchar',
+      'length' => '7',
+      'not null' => FALSE,
+    ),
+    'website' => array(
+      'description' => 'Die Homepage des Vereins',
+      'type' => 'varchar',
+      'length' => '200',
+      'not null' => FALSE,
+    ),
+    'anschrift' => array(
+      'description' => 'Anschrift des Vereins.',
+      'type' => 'varchar',
+      'length' => '500',
+      'not null' => FALSE,
+    ),
+    'telefon' => array(
+      'description' => 'Telefonnummer für die Kontaktadresse des Vereins.',
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'fax' => array(
+      'description' => 'Faxnummer für die Kontaktadresse des Vereins.',
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'sportbund' => array(
+      'description' => 'Sportbund.',
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => FALSE,
+    ),
+    'email' => array(
+      'description' => 'E-mailanschrift für die Kontaktadress des Vereins.',
+      'type' => 'varchar',
+      'length' => '200',
+      'not null' => FALSE,
+    ),
+    'boulodrome' => array(
+      'description' => 'Boulodrôme des Vereins.',
+      'type' => 'varchar',
+      'length' => '200',
+      'not null' => FALSE,
+    ),
+    'latitude' => array(
+      'description' => 'Breitengrad des Bouldrômes.',
+      'type' => 'numeric',
+      'not null' => TRUE,
+      'default' => 0,
+      'precision' => '10',
+      'scale' => '6',
+    ),
+    'longitude' => array(
+      'description' => 'Längengrad des Boulodrômes.',
+      'type' => 'numeric',
+      'not null' => TRUE,
+      'default' => 0,
+      'precision' => '10',
+      'scale' => '6',
+    ),
+    'date_last_change' => array(
+      'description' => 'Datum der letzten Änderung',
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'date_created' => array(
+      'description' => 'Datum der Erstellung dieses Datensatzes.',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'del_yn' => array(
+      'description' => 'Kennzeichen ob der Verein als gelöscht anzusehen ist.',
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'uid' => array(
+      'description' => 'ID des Benutzers der die letzte Änderung vorgenommen hat',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('hid', 'idvereine'),
+);
+
+  
+  $schema['npv_spieler'] = array(
+  'description' => t('Die Spieler im NPV'),
+  'fields' => array(
+    'idspieler' => array(
+      'description' => t('ID-Nummer des Spielers. Wird vom Programm vergeben.'),
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'idverein' => array(
+      'description' => t('ID-Nummer des Vereins.'),
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'name' => array(
+      'description' => t('Name'),
+      'type' => 'varchar',
+      'length' => '45',
+      'not null' => TRUE,
+    ),
+    'vorname' => array(
+      'description' => t('Vorname'),
+      'type' => 'varchar',
+      'length' => '45',
+      'not null' => TRUE,
+    ),
+    'geburts_datum' => array(
+      'description' => t('Geburtsdatum'),
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'geschlecht' => array(
+      'description' => t('Geschlecht'),
+      'type' => 'char',
+      'length' => '1',
+      'not null' => TRUE,
+      'default' => 'm',
+    ),
+    'strasse' => array(
+      'description' => t('Strasse'),
+      'type' => 'varchar',
+      'length' => '45',
+      'not null' => FALSE,
+    ),
+    'plz' => array(
+      'description' => t('Postleitzahl'),
+      'type' => 'varchar',
+      'length' => '45',
+      'not null' => FALSE,
+    ),
+    'ort' => array(
+      'description' => t('Ort'),
+      'type' => 'varchar',
+      'length' => '45',
+      'not null' => FALSE,
+    ),
+    'telefon' => array(
+      'description' => t('Telefon'),
+      'type' => 'varchar',
+      'length' => '45',
+      'not null' => FALSE,
+    ),
+    'handy' => array(
+      'description' => t('Handy'),
+      'type' => 'varchar',
+      'length' => '45',
+      'not null' => FALSE,
+    ),
+    'email' => array(
+      'description' => t('E-Mail Anschrift'),
+      'type' => 'varchar',
+      'length' => '45',
+      'not null' => FALSE,
+    ),
+    'lizenz' => array(
+      'description' => t('Lizenz Nr. nur die letzten 3 Stellen, Rest kommt vom zugeordneten Verein'),
+      'type' => 'varchar',
+      'length' => '3',
+      'not null' => FALSE,
+    ),
+    'eintritt' => array(
+      'description' => t('Eintrittsdatum in Verein'),
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'austritt' => array(
+      'description' => t('Austrittsdatum aus dem Verein'),
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'aktiv' => array(
+      'description' => t('Aktiv Ja/Nein'),
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'gesperrt' => array(
+      'description' => t('Gesperrt Ja/Nein'),
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'gesperrt_von' => array(
+      'description' => t('Gesperrt von Datum'),
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'gesperrt_bis' => array(
+      'description' => t('Gesperrt bis Datum'),
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'gesperrt_text' => array(
+      'description' => t('Bemerkung'),
+      'type' => 'text',
+      'size' => 'big',
+      'not null' => FALSE,
+    ),
+    'date_create' => array(
+      'description' => t('Datum der Erstellung des Datensatzes (wird vom Programm vergeben)'),
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'date_last_change' => array(
+      'description' => t('Datum der letzten Änderung des Datensatzes'),
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'del_yn' => array(
+      'description' => t('Gelöscht Ja/Nein'),
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'bild' => array(
+      'description' => t('Bild des Spielers'),
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'country' => array(
+      'description' => t('Nationalität des Spielers'),
+      'type' => 'varchar',
+      'length' => '2',
+      'not null' => TRUE,
+      'default' => 'DE',
+    ),
+    'uid' => array(
+      'description' => 'ID des Benutzers der die letzte Änderung vorgenommen hat',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('idspieler', 'idverein'),
+);
+
+  $schema['npv_shistory'] = array(
+  'description' => t('Die Historie der Spieler (Vereinszugehörigkeit, Funktion, Sperren)'),
+  'fields' => array(
+    'hid' => array(
+      'description' => t('Id Nummer des Datensatztes'),
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'idspieler' => array(
+      'description' => t('Id Nummer des Spielers'),
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'type' => array(
+      'description' => t('Typ des Datensatzes: 1=Sperren, 2=Vereinszugehörigkeit, 3=Verbandsfunktion'),
+      'type' => 'int',
+      'size' => 'tiny',
+      'not null' => TRUE,
+    ),
+    'date_from' => array(
+      'description' => t('Von Datum'),
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'date_to' => array(
+      'description' => t('Bis Datum'),
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'idverein' => array(
+      'description' => t('Id Nummer des Vereins (nur bei Typ 2)'),
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'remark' => array(
+      'description' => t('Bemerkung'),
+      'type' => 'text',
+      'size' => 'big',
+      'not null' => FALSE,
+    ),
+  ),
+  'primary key' => array('hid'),
+);
+
+  return $schema;
+}
