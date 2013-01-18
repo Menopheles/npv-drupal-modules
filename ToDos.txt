@@ -8,7 +8,7 @@ beim Import von csv Dateien die php function mb_detect_encoding verwenden?!
 
 1. Modul "labjs" deinstallieren
    wird nirgends benutzt
-
++-
 2. Modul Gmap ersetzen
    Modul gmap deaktivieren und (deinstallieren - erst nach Test des neuen Moduls)
 
